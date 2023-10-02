@@ -10,14 +10,38 @@ function App() {
     const [blocks, setBlocks] = useState([]);
 
     const handleDrop = (type) => {
-        setBlocks([...blocks, type]);
+        const newBlock = {
+            type: type,
+            properties: getDefaultProperties(type)
+        };
+        setBlocks([...blocks, newBlock]);
     };
+    
+    const getDefaultProperties = (type) => {
+        switch(type) {
+            case "Input":
+                return { features: 0 };
+            case "Dense":
+                return { neurons: 0, activation: 'relu' };
+            case "Conv2D":
+                return { filters: 0, kernelSize: 0, strides: 1, activation: 'relu' };
+            case "MaxPooling2D":
+                return { poolSize: 2, strides: 2 };
+            // Add default properties for other block types as they're added
+            default:
+                return {};
+        }
+    };
+    
 
     const [isModalOpen, setModalOpen] = useState(false);
     const [editingBlock, setEditingBlock] = useState(null);
+    const [editingBlockIndex, setEditingBlockIndex] = useState(null);
 
-    const handleBlockClick = (blockType) => {
+
+    const handleBlockClick = (blockType, index) => {
         setEditingBlock(blockType);
+        setEditingBlockIndex(index);
         setModalOpen(true);
     };
 
@@ -32,6 +56,13 @@ function App() {
     const handleTrain = () => {
         alert('Train functionality not yet implemented.');
     };
+
+    const handlePropertiesSave = (index, updatedProperties) => {
+        const updatedBlocks = [...blocks];
+        updatedBlocks[index].properties = updatedProperties;
+        setBlocks(updatedBlocks);
+    };
+    
     
 
 
@@ -53,21 +84,30 @@ function App() {
                     Available Blocks:
                     <Block type="Input" />
                     <Block type="Dense" />
+                    <Block type="Conv2D" />
+                    <Block type="MaxPooling2D" />
                 </div>
 
                 <div className="canvas">
                     <Canvas onDrop={handleDrop}>
-                        {blocks.map((blockType, idx) => (
-                            <div key={idx} style={{ border: '1px solid black', margin: '10px' }} onClick={() => handleBlockClick(blockType)}>
-                                {blockType}
-                            </div>
-                        ))}
+                    {blocks.map((block, idx) => (
+                        <div key={idx} style={{ border: '1px solid black', margin: '10px' }} onClick={() => handleBlockClick(block, idx)}>
+                            {block.type} {block.properties.neurons ? `(Neurons: ${block.properties.neurons})` : null} {block.properties.features ? `(Features: ${block.properties.features})` : null}
+                            {block.properties.activation ? `(Activation: ${block.properties.activation})` : null}
+                            {block.properties.filters ? `(Filters: ${block.properties.filters})` : null}
+                            {block.properties.kernelSize ? `(Kernel Size: ${block.properties.kernelSize})` : null}
+                            {block.properties.poolSize ? `(Pool Size: ${block.properties.poolSize})` : null}
+                            {block.properties.strides ? `(Strides: ${block.properties.strides})` : null}
+                            
+                        </div>
+                    ))}
+
                     </Canvas>
                 </div>
 
             </div>
 
-            {isModalOpen && <PropertyModal blockType={editingBlock} onClose={() => setModalOpen(false)} />} 
+            {isModalOpen && <PropertyModal blockType={editingBlock.type} blockIndex={editingBlockIndex} onClose={() => setModalOpen(false)} onSave={handlePropertiesSave} />}
 
         </DndProvider>
     );
