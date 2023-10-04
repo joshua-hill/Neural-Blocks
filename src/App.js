@@ -9,9 +9,10 @@ import './App.css';
 function App() {
     const [blocks, setBlocks] = useState([]);
 
-    const handleDrop = (type) => {
+    const handleDrop = (type, position) => {
         const newBlock = {
             type: type,
+            position: position,
             properties: getDefaultProperties(type)
         };
         setBlocks([...blocks, newBlock]);
@@ -63,6 +64,12 @@ function App() {
         setBlocks(updatedBlocks);
     };
     
+    const handleDelete = (index) => {
+        const updatedBlocks = [...blocks];
+        updatedBlocks.splice(index, 1);
+        setBlocks(updatedBlocks);
+    };
+
     
 
 
@@ -91,8 +98,12 @@ function App() {
                 <div className="canvas">
                     <Canvas onDrop={handleDrop}>
                     {blocks.map((block, idx) => (
-                        <div key={idx} style={{ border: '1px solid black', margin: '10px' }} onClick={() => handleBlockClick(block, idx)}>
-                            {block.type} {block.properties.neurons ? `(Neurons: ${block.properties.neurons})` : null} {block.properties.features ? `(Features: ${block.properties.features})` : null}
+                        <div key={idx} style={{ border: '1px solid black', margin: '10px',  position: 'relative', left: block.position.left, 
+            top: block.position.top  }} onClick={() => handleBlockClick(block, idx)}>
+                        <button style={{ position: 'absolute', top: 0, right: 0 }} onClick={(e) => { e.stopPropagation(); handleDelete(idx); }}>Delete</button>
+                            {block.type} 
+                            {block.properties.neurons ? `(Neurons: ${block.properties.neurons})` : null} 
+                            {block.properties.features ? `(Features: ${block.properties.features})` : null}
                             {block.properties.activation ? `(Activation: ${block.properties.activation})` : null}
                             {block.properties.filters ? `(Filters: ${block.properties.filters})` : null}
                             {block.properties.kernelSize ? `(Kernel Size: ${block.properties.kernelSize})` : null}
