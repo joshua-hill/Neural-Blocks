@@ -11,9 +11,13 @@ const Canvas = ({ onDrop, children }) => {
     });
 
     return (
-        <div ref={drop} style={{ width: '100%', height: '100%', backgroundColor: isOver ? '#eaeaea' : 'white' }}>
-            
+        <div ref={drop} style={{ width:'100%', 
+        height: '100%', 
+        backgroundColor: isOver ? '#eaeaea' : 'white',
+        backgroundSize: '40px 40px',
+            }}>
             {children}  {/* Render blocks here */}
+
         </div>
     );
 };
