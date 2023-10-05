@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useDrop } from 'react-dnd';
 
-const Canvas = ({ onDrop, children }) => {
+const Canvas = ({ onDrop, children, blocks }) => {
     const gridSize = 40;  // This matches the grid size set in the CSS
 
     const canvasRef = useRef(null);
@@ -11,20 +11,27 @@ const Canvas = ({ onDrop, children }) => {
         drop: (item, monitor) => {
             const canvasRect = canvasRef.current.getBoundingClientRect(); // Get canvas position
 
-             // Adjust for canvas offset
-            const delta = monitor.getDifferenceFromInitialOffset();
-             
-            let left = Math.round((item.initialLeft + delta.x - canvasRect.left) / gridSize) * gridSize;
-            let top = Math.round((item.initialTop + delta.y - canvasRect.top) / gridSize) * gridSize;
+        // Adjust for canvas offset
+        const delta = monitor.getDifferenceFromInitialOffset();
+        let left = Math.round((item.initialLeft + delta.x - canvasRect.left) / gridSize) * gridSize;
+        let top = Math.round((item.initialTop + delta.y - canvasRect.top) / gridSize) * gridSize;
 
-            console.log("Calculated position:", { left, top });
+        // Vertical Snapping
+        const snapThreshold = 10; // Distance in pixels to trigger snapping
+        for (const block of blocks) { // Assuming 'blocks' prop is passed to the Canvas component
+            if (Math.abs(block.position.left - left) < gridSize) { // Blocks are vertically aligned
+                if (Math.abs(block.position.top + gridSize - top) < snapThreshold) { // Block is close enough to snap
+                    top = block.position.top + gridSize;
+                    console.log("Vertical snap")
+                }
+            }
+        }
 
+        // Call the onDrop function passed from the parent component (App)
+        onDrop(item.type, { left, top });
 
-            // Call the onDrop function passed from the parent component (App)
-            onDrop(item.type, { left, top });
-
-            // Return the new snapped position (might be useful later)
-            return { left, top };
+        // Return the new snapped position (might be useful later)
+        return { left, top };
         },
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),

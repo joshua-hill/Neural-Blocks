@@ -10,9 +10,15 @@ function App() {
     const [blocks, setBlocks] = useState([]);
 
     const handleDrop = (type, position) => {
+        let adjustedPosition = { ...position };
+
+        // This loop will ensure that we keep adjusting the position until no overlap is found
+        while (blocks.some(block => block.position.left === adjustedPosition.left && block.position.top === adjustedPosition.top)) {
+            adjustedPosition.top += 40;  // Assuming block height + margin = 60px, adjust as needed
+        }
         const newBlock = {
             type: type,
-            position: position,
+            position: adjustedPosition,
             properties: getDefaultProperties(type)
         };
         console.log("Setting block position:", position);
@@ -98,7 +104,7 @@ function App() {
                 </div>
 
                 <div className="canvas">
-                    <Canvas onDrop={handleDrop}>
+                    <Canvas onDrop={handleDrop} blocks={blocks}>
                     {blocks.map((block, idx) => (
                         <div key={idx} 
                         style={{ border: '1px solid black', margin: '10px',  position: 'absolute', left: block.position.left, 

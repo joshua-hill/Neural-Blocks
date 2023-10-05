@@ -30,7 +30,7 @@ const Block = ({ type }) => {
             drag(node);
             ref.current = node;
         }} style={{ ...blockStyle, opacity: isDragging ? 0.5 : 1 }}>
-        
+            {type}
         </div>
     );
 };
