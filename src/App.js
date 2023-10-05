@@ -15,6 +15,8 @@ function App() {
             position: position,
             properties: getDefaultProperties(type)
         };
+        console.log("Setting block position:", position);
+
         setBlocks([...blocks, newBlock]);
     };
     
@@ -98,8 +100,11 @@ function App() {
                 <div className="canvas">
                     <Canvas onDrop={handleDrop}>
                     {blocks.map((block, idx) => (
-                        <div key={idx} style={{ border: '1px solid black', margin: '10px',  position: 'relative', left: block.position.left, 
-            top: block.position.top  }} onClick={() => handleBlockClick(block, idx)}>
+                        <div key={idx} 
+                        style={{ border: '1px solid black', margin: '10px',  position: 'absolute', left: block.position.left, 
+                                top: block.position.top  }} 
+                                onClick={() => handleBlockClick(block, idx)}>
+
                         <button style={{ position: 'absolute', top: 0, right: 0 }} onClick={(e) => { e.stopPropagation(); handleDelete(idx); }}>Delete</button>
                             {block.type} 
                             {block.properties.neurons ? `(Neurons: ${block.properties.neurons})` : null} 

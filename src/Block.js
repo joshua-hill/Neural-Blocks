@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useDrag } from 'react-dnd';
 
 const Block = ({ type }) => {
+    const ref = useRef(null);
+
     const [{ isDragging }, drag] = useDrag({
         type: 'BLOCK',
-        item: { type },
+        item: (monitor) => ({
+            type: type,
+            initialLeft: ref.current.getBoundingClientRect().left,
+            initialTop: ref.current.getBoundingClientRect().top
+        }),
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
         }),
@@ -20,8 +26,11 @@ const Block = ({ type }) => {
     };
 
     return (
-        <div ref={drag} style={{ ...blockStyle, opacity: isDragging ? 0.5 : 1 }}>
-            {type}
+        <div ref={node => {
+            drag(node);
+            ref.current = node;
+        }} style={{ ...blockStyle, opacity: isDragging ? 0.5 : 1 }}>
+        
         </div>
     );
 };
