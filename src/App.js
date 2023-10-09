@@ -25,10 +25,16 @@ function App() {
             position: adjustedPosition,
             properties: getDefaultProperties(type)
         };
+        console.log("New block:", newBlock);
         console.log("Setting block position:", position);
 
         setBlocks([...blocks, newBlock]);
+        console.log("Updated blocks:", blocks);
+
         setNextId(nextId + 1);
+        console.log("Dropped item type:", type);
+        console.log("Dropped item position:", position);
+
     };
     
     const getDefaultProperties = (type) => {
@@ -110,31 +116,25 @@ function App() {
 
                 <div className="palette">
                     Available Blocks:
-                    <Block type="Input" />
-                    <Block type="Dense" />
-                    <Block type="Conv2D" />
-                    <Block type="MaxPooling2D" />
+                    <Block type="Input" isTemplate={true} />
+                    <Block type="Dense" isTemplate={true} />
+                    <Block type="Conv2D" isTemplate={true} />
+                    <Block type="MaxPooling2D" isTemplate={true} />
                 </div>
 
                 <div className="canvas">
                     <Canvas onDrop={handleDrop} blocks={blocks} onMoveBlock={handleMoveBlock}>
                     {blocks.map((block, idx) => (
-                        <div key={idx} 
-                            style={{ border: '1px solid black', margin: '10px',  position: 'absolute', left: block.position.left, 
-                            top: block.position.top  }} 
-                            onClick={() => handleBlockClick(block, idx)}>
-
-                            <button style={{ position: 'absolute', top: 0, right: 0 }} onClick={(e) => { e.stopPropagation(); handleDelete(idx); }}>Delete</button>
-                            {block.type} 
-                            {block.properties.neurons ? `(Neurons: ${block.properties.neurons})` : null} 
-                            {block.properties.features ? `(Features: ${block.properties.features})` : null}
-                            {block.properties.activation ? `(Activation: ${block.properties.activation})` : null}
-                            {block.properties.filters ? `(Filters: ${block.properties.filters})` : null}
-                            {block.properties.kernelSize ? `(Kernel Size: ${block.properties.kernelSize})` : null}
-                            {block.properties.poolSize ? `(Pool Size: ${block.properties.poolSize})` : null}
-                            {block.properties.strides ? `(Strides: ${block.properties.strides})` : null}
-                            
-                        </div>
+                        <Block 
+                        key={idx} 
+                        id={idx} 
+                        type={block.type} 
+                        position={block.position} 
+                        onMoveBlock={handleMoveBlock}
+                        onClick={() => handleBlockClick(block, idx)}
+                        onDelete={() => handleDelete(idx)}
+                        properties={block.properties}
+                    />
                     ))}
 
                     </Canvas>
