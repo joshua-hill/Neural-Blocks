@@ -1,19 +1,33 @@
 import React, { useRef } from 'react';
 import { useDrag } from 'react-dnd';
 
-const Block = ({ type }) => {
+const Block = ({ type , id, position, onMoveBlock}) => {
     const ref = useRef(null);
 
     const [{ isDragging }, drag] = useDrag({
         type: 'BLOCK',
         item: (monitor) => ({
+            id: id,
             type: type,
             initialLeft: ref.current.getBoundingClientRect().left,
-            initialTop: ref.current.getBoundingClientRect().top
+            initialTop: ref.current.getBoundingClientRect().top,
+            initialPosition: position
         }),
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
         }),
+        end: (item, monitor) => {
+            if (position) { // This means the block is within the canvas
+                const delta = monitor.getDifferenceFromInitialOffset();
+                if (delta) {
+                    const newLeft = item.position.left + delta.x;
+                    const newTop = item.position.top + delta.y;
+                    onMoveBlock(item.id, { left: newLeft, top: newTop });  // Callback to update block position in App's state
+                }
+            }
+        },
+        
+        
     });
 
     const blockStyle = {

@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useDrop } from 'react-dnd';
 
-const Canvas = ({ onDrop, children, blocks }) => {
+const Canvas = ({ onDrop, children, blocks, onMoveBlock }) => {
     const gridSize = 40;  // This matches the grid size set in the CSS
 
     const canvasRef = useRef(null);
@@ -23,6 +23,7 @@ const Canvas = ({ onDrop, children, blocks }) => {
                 if (Math.abs(block.position.top + gridSize - top) < snapThreshold) { // Block is close enough to snap
                     top = block.position.top + gridSize;
                     console.log("Vertical snap")
+                    onMoveBlock(item.id, { left, top });
                 }
             }
         }

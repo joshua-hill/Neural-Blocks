@@ -9,6 +9,9 @@ import './App.css';
 function App() {
     const [blocks, setBlocks] = useState([]);
 
+    const [nextId, setNextId] = useState(0);
+
+
     const handleDrop = (type, position) => {
         let adjustedPosition = { ...position };
 
@@ -17,6 +20,7 @@ function App() {
             adjustedPosition.top += 40;  // Assuming block height + margin = 60px, adjust as needed
         }
         const newBlock = {
+            id: nextId,
             type: type,
             position: adjustedPosition,
             properties: getDefaultProperties(type)
@@ -24,6 +28,7 @@ function App() {
         console.log("Setting block position:", position);
 
         setBlocks([...blocks, newBlock]);
+        setNextId(nextId + 1);
     };
     
     const getDefaultProperties = (type) => {
@@ -78,6 +83,14 @@ function App() {
         setBlocks(updatedBlocks);
     };
 
+    const handleMoveBlock = (blockId, newPosition) => {
+        const updatedBlocks = blocks.map(block => 
+            block.id === blockId ? { ...block, position: newPosition } : block
+        );
+        setBlocks(updatedBlocks);
+    };
+    
+
     
 
 
@@ -104,14 +117,14 @@ function App() {
                 </div>
 
                 <div className="canvas">
-                    <Canvas onDrop={handleDrop} blocks={blocks}>
+                    <Canvas onDrop={handleDrop} blocks={blocks} onMoveBlock={handleMoveBlock}>
                     {blocks.map((block, idx) => (
                         <div key={idx} 
-                        style={{ border: '1px solid black', margin: '10px',  position: 'absolute', left: block.position.left, 
-                                top: block.position.top  }} 
-                                onClick={() => handleBlockClick(block, idx)}>
+                            style={{ border: '1px solid black', margin: '10px',  position: 'absolute', left: block.position.left, 
+                            top: block.position.top  }} 
+                            onClick={() => handleBlockClick(block, idx)}>
 
-                        <button style={{ position: 'absolute', top: 0, right: 0 }} onClick={(e) => { e.stopPropagation(); handleDelete(idx); }}>Delete</button>
+                            <button style={{ position: 'absolute', top: 0, right: 0 }} onClick={(e) => { e.stopPropagation(); handleDelete(idx); }}>Delete</button>
                             {block.type} 
                             {block.properties.neurons ? `(Neurons: ${block.properties.neurons})` : null} 
                             {block.properties.features ? `(Features: ${block.properties.features})` : null}
