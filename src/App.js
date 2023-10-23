@@ -17,7 +17,7 @@ function App() {
 
         // This loop will ensure that we keep adjusting the position until no overlap is found
         while (blocks.some(block => block.position.left === adjustedPosition.left && block.position.top === adjustedPosition.top)) {
-            adjustedPosition.top += 40;  // Assuming block height + margin = 60px, adjust as needed
+            adjustedPosition.top += 40;  
         }
         const newBlock = {
             id: nextId,
@@ -90,11 +90,44 @@ function App() {
     };
 
     const handleMoveBlock = (blockId, newPosition) => {
+        // This loop will ensure that we keep adjusting the position until no overlap is found
+        while (blocks.some(block => block.position.left === newPosition.left && block.position.top === newPosition.top)) {
+            newPosition.top += 40;  
+        }
+        console.log("Moving block with ID:", blockId, "to new position:", newPosition);
         const updatedBlocks = blocks.map(block => 
             block.id === blockId ? { ...block, position: newPosition } : block
         );
         setBlocks(updatedBlocks);
+        console.log('Updated Blocks State:', updatedBlocks);
+        console.log(`Block ${blockId} - Updated Position in onMoveBlock:`, newPosition);
     };
+
+    const getBlocksConnectedBelow = (blockId, blocks) => {
+        const connectedBlocks = [];
+    
+        const findConnectedBlocks = (currentId) => {
+            const currentBlock = blocks.find(b => b.id === currentId);
+            console.log("Examining block:", currentBlock);
+            const blockDirectlyBelow = blocks.find(b => b.position.left === currentBlock.position.left && b.position.top === currentBlock.position.top + 40);
+            console.log("Block directly below:", blockDirectlyBelow);
+            if (blockDirectlyBelow) {
+                connectedBlocks.push(blockDirectlyBelow);
+                findConnectedBlocks(blockDirectlyBelow.id);
+            }
+        };
+    
+        findConnectedBlocks(blockId);
+
+        console.log("All connected blocks:", connectedBlocks);
+    
+        return connectedBlocks;
+    };
+    
+    
+
+    
+    
     
 
     
@@ -123,20 +156,21 @@ function App() {
                 </div>
 
                 <div className="canvas">
-                    <Canvas onDrop={handleDrop} blocks={blocks} onMoveBlock={handleMoveBlock}>
+                    <Canvas onDrop={handleDrop} blocks={blocks} onMoveBlock={handleMoveBlock} getBlocksConnectedBelow={getBlocksConnectedBelow} setBlocks={setBlocks}>
                     {blocks.map((block, idx) => (
                         <Block 
-                        key={idx} 
-                        id={idx} 
+                        key={block.id} 
+                        id={block.id} 
                         type={block.type} 
                         position={block.position} 
                         onMoveBlock={handleMoveBlock}
-                        onClick={() => handleBlockClick(block, idx)}
-                        onDelete={() => handleDelete(idx)}
+                        onClick={() => handleBlockClick(block, block.id)}
+                        onDelete={() => handleDelete(block.id)}
                         properties={block.properties}
+                        getBlocksConnectedBelow={getBlocksConnectedBelow}
+                        blocks={blocks}
                     />
                     ))}
-
                     </Canvas>
                 </div>
 

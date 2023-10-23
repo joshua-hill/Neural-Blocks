@@ -1,7 +1,12 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 
-const Canvas = ({ onDrop, children, blocks, onMoveBlock }) => {
+
+
+const Canvas = ({ onDrop, children, blocks, onMoveBlock, getBlocksConnectedBelow, setBlocks }) => {
+    useEffect(() => {
+        console.log("Component (Canvas or Block) re-rendered");
+    });
     const gridSize = 40;  // This matches the grid size set in the CSS
 
     const canvasRef = useRef(null);
@@ -9,31 +14,28 @@ const Canvas = ({ onDrop, children, blocks, onMoveBlock }) => {
     const [{ isOver }, drop] = useDrop({
         accept: 'BLOCK',
         drop: (item, monitor) => {
-            const canvasRect = canvasRef.current.getBoundingClientRect(); // Get canvas position
-
-        // Adjust for canvas offset
-        const delta = monitor.getDifferenceFromInitialOffset();
-        let left = Math.round((item.initialLeft + delta.x - canvasRect.left) / gridSize) * gridSize;
-        let top = Math.round((item.initialTop + delta.y - canvasRect.top) / gridSize) * gridSize;
-
-        // Vertical Snapping
-        const snapThreshold = 10; // Distance in pixels to trigger snapping
-        for (const block of blocks) { // Assuming 'blocks' prop is passed to the Canvas component
-            if (Math.abs(block.position.left - left) < gridSize) { // Blocks are vertically aligned
-                if (Math.abs(block.position.top + gridSize - top) < snapThreshold) { // Block is close enough to snap
-                    top = block.position.top + gridSize;
-                    console.log("Vertical snap")
-                    onMoveBlock(item.id, { left, top });
-                }
+            console.log("Dropped item:", item);
+            const canvasRect = canvasRef.current.getBoundingClientRect(); 
+        
+            const delta = monitor.getDifferenceFromInitialOffset();
+            console.log("Delta:", delta);
+            let left = Math.round((item.initialLeft + delta.x - canvasRect.left) / gridSize) * gridSize;
+            let top = Math.round((item.initialTop + delta.y - canvasRect.top) / gridSize) * gridSize;
+            console.log(`Block ${item.id} - Calculated New Position:`, { left, top });
+        
+            if (item.id !== undefined) {  // It's an existing block
+                // Update the main block's position
+                console.log("current blockie: ", item)
+                onMoveBlock(item.id, { left, top });
+        
+                
+            } else {  // It's a new block from the palette
+                onDrop(item.type, { left, top });
             }
-        }
-
-        // Call the onDrop function passed from the parent component (App)
-        onDrop(item.type, { left, top });
-
-        // Return the new snapped position (might be useful later)
-        return { left, top };
+        
+            return { left, top };
         },
+
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
         }),
